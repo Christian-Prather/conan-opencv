@@ -40,13 +40,14 @@ class OpenCVConan(ConanFile):
                "ffmpeg": [True, False],
                "lapack": [True, False],
                "parallel": ["tbb", "openmp", None],
-               "quirc": [True, False]}
+               "quirc": [True, False],
+               "gapi": [True, False]}
     default_options = {"shared": False,
                        "fPIC": True,
                        "contrib": False,
                        "jpeg": True,
                        "jpegturbo": False,
-                       "tiff": True,
+                       "tiff": False,
                        "webp": True,
                        "png": True,
                        "jpeg2000": "openjpeg",
@@ -67,7 +68,8 @@ class OpenCVConan(ConanFile):
                        "ffmpeg": False,
                        "lapack": False,
                        "parallel": None,
-                       "quirc": True}
+                       "quirc": True,
+                       "gapi": False}
     exports_sources = ["CMakeLists.txt", "patches/*.patch"]
     exports = "LICENSE"
     generators = "cmake"
@@ -160,7 +162,7 @@ class OpenCVConan(ConanFile):
         if self.options.protobuf:
             # NOTE : version should be the same as used in OpenCV release,
             # otherwise, PROTOBUF_UPDATE_FILES should be set to re-generate files
-            self.requires.add('protobuf/3.5.2@bincrafters/stable')
+            self.requires.add('protobuf/3.9.1@bincrafters/stable')
         if self.options.eigen:
             self.requires.add('eigen/3.3.7')
         if self.options.gstreamer:
@@ -509,7 +511,7 @@ class OpenCVConan(ConanFile):
         if self.settings.os == 'Emscripten':
             opencv_libs.remove("videoio")
 
-        if self.settings.os != 'Android':
+        if self.options.gapi:
             # gapi depends on ade but ade disabled for Android
             # https://github.com/opencv/opencv/blob/4.0.1/modules/gapi/cmake/DownloadADE.cmake#L2
             opencv_libs.append("gapi")
@@ -568,6 +570,8 @@ class OpenCVConan(ConanFile):
                             "cudawarping",
                             "cudev"
                             ] + opencv_libs
+
+
 
         suffix = 'd' if self.settings.build_type == 'Debug' and self.settings.os == "Windows" else ''
         version = self.version.replace(
