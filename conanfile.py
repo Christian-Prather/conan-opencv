@@ -164,7 +164,7 @@ class OpenCVConan(ConanFile):
         if self.options.protobuf:
             # NOTE : version should be the same as used in OpenCV release,
             # otherwise, PROTOBUF_UPDATE_FILES should be set to re-generate files
-            self.requires.add('protobuf/3.5.2@bincrafters/stable')
+            self.requires.add('protobuf/3.9.1@bincrafters/stable')
         if self.options.eigen:
             self.requires.add('eigen/3.3.7')
         if self.options.gstreamer:
@@ -358,7 +358,7 @@ class OpenCVConan(ConanFile):
 
         # Protobuf
         cmake.definitions['BUILD_PROTOBUF'] = False
-        cmake.definitions['PROTOBUF_UPDATE_FILES'] = False
+        cmake.definitions['PROTOBUF_UPDATE_FILES'] = True
         cmake.definitions['WITH_PROTOBUF'] = self.options.protobuf
         if self.options.protobuf and self.settings.compiler == 'Visual Studio' and self.options.shared:
             # this relies on CMake's bundled FindProtobuf.cmake
@@ -510,11 +510,6 @@ class OpenCVConan(ConanFile):
 
         if self.settings.os == 'Emscripten':
             opencv_libs.remove("videoio")
-
-        if not self.options.modules and self.settings.os != 'Android':
-            # gapi depends on ade but ade disabled for Android
-            # https://github.com/opencv/opencv/blob/4.0.1/modules/gapi/cmake/DownloadADE.cmake#L2
-            opencv_libs.append("gapi")
 
         if self.options.contrib:
             # Add all contrib modules if no specific list given
