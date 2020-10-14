@@ -510,7 +510,12 @@ class OpenCVConan(ConanFile):
 
         if self.settings.os == 'Emscripten':
             opencv_libs.remove("videoio")
-
+        
+        if not self.options.modules and self.settings.os != 'Android':
+            # gapi depends on ade but ade disabled for Android
+            # https://github.com/opencv/opencv/blob/4.0.1/modules/gapi/cmake/DownloadADE.cmake#L2
+            opencv_libs.append("gapi")
+        
         if self.options.contrib:
             # Add all contrib modules if no specific list given
             if not self.options.modules:
